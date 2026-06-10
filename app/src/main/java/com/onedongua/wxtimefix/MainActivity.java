@@ -438,7 +438,6 @@ public class MainActivity extends AppCompatActivity {
                 // 设置文件的修改时间和创建时间
                 boolean modified = file.setLastModified(timestamp);
 
-                // 对于创建时间，Android上没有直接的API，但setLastModified会更新元数据
                 if (modified) {
                     processedCount++;
                 }
