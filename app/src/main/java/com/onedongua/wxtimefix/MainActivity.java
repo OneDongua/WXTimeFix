@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEY_PATH = "path";
     private static final String KEY_START_POSITION = "startPosition";
     private static final String KEY_END_POSITION = "endPosition";
+    private static final String DEFAULT_PATH = "/sdcard/Pictures/Weixin";
 
     // 匹配 mmexport{毫秒时间戳}.{后缀名} 和 wx_camera_{毫秒时间戳}.{后缀名} 格式
     private static final Pattern FILE_PATTERN_MMEXPORT = Pattern.compile("^mmexport(\\d{13})\\.(.+)$");
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadSavedData() {
-        String savedPath = sharedPreferences.getString(KEY_PATH, "");
+        String savedPath = sharedPreferences.getString(KEY_PATH, DEFAULT_PATH);
         String savedStartPos = sharedPreferences.getString(KEY_START_POSITION, "");
         String savedEndPos = sharedPreferences.getString(KEY_END_POSITION, "");
 
