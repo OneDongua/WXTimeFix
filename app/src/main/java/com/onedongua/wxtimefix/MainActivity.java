@@ -3,21 +3,26 @@ package com.onedongua.wxtimefix;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -37,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 1002;
     private static final int MANAGE_STORAGE_REQUEST_CODE = 1003;
 
-    private LinearLayout banner;
+    private ConstraintLayout banner;
     private EditText etPath;
     private EditText etStartPosition;
     private EditText etEndPosition;
@@ -45,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnSelectPath;
     private Button btnStartFix;
     private Button btnRefreshMedia;
+    private ImageButton btnMore;
 
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "WXTimeFixPrefs";
@@ -82,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         btnSelectPath = findViewById(R.id.btnSelectPath);
         btnStartFix = findViewById(R.id.btnStartFix);
         btnRefreshMedia = findViewById(R.id.btnRefreshMedia);
+        btnMore = findViewById(R.id.btnMore);
     }
 
     private void adaptInsets() {
@@ -135,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
 
         // 刷新媒体库按钮
         btnRefreshMedia.setOnClickListener(v -> refreshMediaStore());
+
+        // 更多按钮
+        btnMore.setOnClickListener(v -> showAboutDialog());
 
         // 输入框变化时自动保存
         etPath.setOnFocusChangeListener((v, hasFocus) -> {
@@ -226,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
+
         // 处理所有文件访问权限请求结果
         if (requestCode == MANAGE_STORAGE_REQUEST_CODE) {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
@@ -238,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
             }
             return;
         }
-        
+
         if (requestCode == REQUEST_CODE_SELECT_DIR && resultCode == Activity.RESULT_OK && data != null) {
             Uri uri = data.getData();
             if (uri != null) {
@@ -319,18 +329,18 @@ public class MainActivity extends AppCompatActivity {
         // 收集所有匹配文件的文件名和时间戳
         java.util.List<File> matchingFiles = new java.util.ArrayList<>();
         java.util.List<Long> timestamps = new java.util.ArrayList<>();
-        
+
         for (File file : allFiles) {
             if (!file.isFile()) {
                 continue;
             }
-            
+
             String fileName = file.getName();
             Matcher matcher = FILE_PATTERN_MMEXPORT.matcher(fileName);
             if (!matcher.matches()) {
                 matcher = FILE_PATTERN_WXCAMERA.matcher(fileName);
             }
-            
+
             if (matcher.matches()) {
                 try {
                     long timestamp = Long.parseLong(matcher.group(1));
@@ -411,7 +421,7 @@ public class MainActivity extends AppCompatActivity {
             if (!matcher.matches()) {
                 matcher = FILE_PATTERN_WXCAMERA.matcher(fileName);
             }
-            
+
             if (!matcher.matches()) {
                 continue;
             }
@@ -469,6 +479,42 @@ public class MainActivity extends AppCompatActivity {
 
             runOnUiThread(() -> Toast.makeText(MainActivity.this, "媒体库刷新完成", Toast.LENGTH_SHORT).show());
         });
+    }
+
+    /**
+     * 显示关于对话框
+     */
+    private void showAboutDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        //  Inflate 自定义布局
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_about, null);
+
+        // 设置应用图标
+        ImageView ivAppIcon = dialogView.findViewById(R.id.ivAppIcon);
+        ivAppIcon.setImageDrawable(getApplicationInfo().loadIcon(getPackageManager()));
+
+        // 设置应用名称
+        TextView tvAppName = dialogView.findViewById(R.id.tvAppName);
+        tvAppName.setText(getString(R.string.app_name));
+
+        // 设置应用版本
+        TextView tvAppVersion = dialogView.findViewById(R.id.tvAppVersion);
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String versionName = packageInfo.versionName;
+            int versionCode = packageInfo.versionCode;
+            tvAppVersion.setText("版本: " + versionName + " (" + versionCode + ")");
+        } catch (PackageManager.NameNotFoundException e) {
+            tvAppVersion.setText("版本: 未知");
+        }
+
+        // 设置作者信息
+        TextView tvAppAuthor = dialogView.findViewById(R.id.tvAppAuthor);
+        tvAppAuthor.setText("作者: 一個冬瓜 & Qwen");
+
+        builder.setView(dialogView);
+        builder.show();
     }
 
     @Override
