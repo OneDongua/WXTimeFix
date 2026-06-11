@@ -9,6 +9,8 @@ WXTimeFix 是一款 Android 应用，用于修复微信导出图片的修改时�
 ），但备份恢复后很可能失去文件修改日期属性，导致图片在相册中的时间线上位置错误。
 本应用可以从文件名中提取时间戳，并恢复文件的修改时间。
 
+[下载(Releases)](https://github.com/OneDongua/WXTimeFix/releases)
+
 若想恢复系统相机拍摄的照片时间，推荐使用[照片时间修复](https://github.com/Cryolitia/PhotoTimeFix/tree/a0911c6958805bf39b789cc2af48b0581fa876b4) ([这里下载](https://github.com/Cryolitia/PhotoTimeFix/releases/tag/3.4))
 
 ## ✨ 功能特性
