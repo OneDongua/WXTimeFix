@@ -228,6 +228,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "存储权限被拒绝，应用可能无法正常工作", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "权限获取成功", Toast.LENGTH_SHORT).show();
+                updateFileCount(etPath.getText().toString().trim());
             }
         }
     }
@@ -248,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
                     Toast.makeText(this, "已获得所有文件访问权限", Toast.LENGTH_SHORT).show();
+                    updateFileCount(etPath.getText().toString().trim());
                 } else {
                     Toast.makeText(this, "未获得所有文件访问权限，应用可能无法正常工作", Toast.LENGTH_LONG).show();
                 }
