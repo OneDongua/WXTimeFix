@@ -1,5 +1,7 @@
 # WXTimeFix - 微信图片时间修复
 
+![图标](/app/src/main/res/drawable/icon.png)
+
 ## 📱 项目简介
 
 WXTimeFix 是一款 Android 应用，用于修复微信导出图片的修改时间问题。
