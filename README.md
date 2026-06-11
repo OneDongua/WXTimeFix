@@ -1,6 +1,6 @@
 # WXTimeFix - 微信图片时间修复
 
-![图标](/app/src/main/res/drawable/icon.png)
+<img src="/app/src/main/res/drawable/icon.png" alt="图标" width="256" height="256" />
 
 ## 📱 项目简介
 
