@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +31,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -38,6 +42,7 @@ import java.util.regex.Pattern;
 @SuppressLint("SetTextI18n")
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private static final int REQUEST_CODE_SELECT_DIR = 1001;
     private static final int PERMISSION_REQUEST_CODE = 1002;
     private static final int MANAGE_STORAGE_REQUEST_CODE = 1003;
@@ -328,8 +333,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 收集所有匹配文件的文件名和时间戳
-        java.util.List<File> matchingFiles = new java.util.ArrayList<>();
-        java.util.List<Long> timestamps = new java.util.ArrayList<>();
+        List<File> matchingFiles = new ArrayList<>();
+        List<Long> timestamps = new ArrayList<>();
 
         for (File file : allFiles) {
             if (!file.isFile()) {
@@ -348,7 +353,8 @@ public class MainActivity extends AppCompatActivity {
                     matchingFiles.add(file);
                     timestamps.add(timestamp);
                 } catch (NumberFormatException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "解析时间戳失败: " + fileName, e);
+                    runOnUiThread(() -> Toast.makeText(MainActivity.this, "文件 " + fileName + " 时间戳格式错误", Toast.LENGTH_SHORT).show());
                 }
             }
         }
@@ -359,7 +365,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 对时间戳排序，确定最小和最大值
-        java.util.Collections.sort(timestamps);
+        Collections.sort(timestamps);
         long minTimestamp = timestamps.get(0);
         long maxTimestamp = timestamps.get(timestamps.size() - 1);
 
@@ -389,7 +395,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        if (startPos >= endPos) {
+        if (startPos > endPos) {
             Toast.makeText(this, "起始位置必须小于终止位置", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -398,7 +404,11 @@ public class MainActivity extends AppCompatActivity {
         executorService.execute(() -> {
             int processedCount = fixFilesInDirectory(directory, startPos, endPos);
             runOnUiThread(() -> {
-                Toast.makeText(MainActivity.this, "已处理 " + processedCount + " 个文件", Toast.LENGTH_SHORT).show();
+                if (processedCount == 0) {
+                    Toast.makeText(MainActivity.this, "没有文件需要处理", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "已处理 " + processedCount + " 个文件", Toast.LENGTH_SHORT).show();
+                }
                 updateFileCount(path);
             });
         });
@@ -440,9 +450,12 @@ public class MainActivity extends AppCompatActivity {
 
                 if (modified) {
                     processedCount++;
+                } else {
+                    Log.w(TAG, "无法修改文件时间: " + fileName);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e(TAG, "处理文件失败: " + fileName, e);
+                runOnUiThread(() -> Toast.makeText(MainActivity.this, "处理文件失败: " + fileName, Toast.LENGTH_SHORT).show());
             }
         }
 
